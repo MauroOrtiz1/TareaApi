@@ -49,7 +49,34 @@ namespace ActividadApi.Controllers
             tareas.Add(nuevaTarea); // Agrega la nueva tarea a la lista
 
             return CreatedAtAction(nameof(ObtenerTareaPorId), new { id = nuevaTarea.Id }, nuevaTarea); // Devuelve el 201 Created
+        
         }
+        // PUT api/tasks/{id}
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)] // Respuesta 200 OK cuando la tarea es actualizada
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // Respuesta 404 Not Found si la tarea no existe
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Respuesta 400 Bad Request si hay un error en los datos
+        public IActionResult ModificarTarea(int id, [FromBody] Tarea tareaModificada)
+        {
+            if (tareaModificada == null || string.IsNullOrEmpty(tareaModificada.Titulo) || string.IsNullOrEmpty(tareaModificada.Estado))
+            {
+                return BadRequest("El título y el estado son obligatorios."); // Validación de entrada
+            }
+
+            var tareaExistente = tareas.FirstOrDefault(t => t.Id == id);
+            if (tareaExistente == null)
+            {
+                return NotFound(); // Si la tarea no existe, devuelve 404
+            }
+
+            // Actualiza la tarea existente con los nuevos valores
+            tareaExistente.Titulo = tareaModificada.Titulo;
+            tareaExistente.Descripcion = tareaModificada.Descripcion;
+            tareaExistente.Estado = tareaModificada.Estado;
+
+            return Ok(tareaExistente); // Devuelve la tarea actualizada
+        }
+
     }
 }
 // Esto es una prueba
